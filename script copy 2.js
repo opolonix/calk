@@ -45,40 +45,38 @@ const addition_subtraction = (value) => { // сложение вычитание
 }
 const rm_parentheses = (value) => { // раскрывание скобок
     let await_close = false
-    let expression
-    let sum
-    let clk
+    let expression = ''
+    let sum = 1
+    let count = 0
+    let expression_value
+    let oper = '*'
     value.split('').forEach(char => {
         if (await_close){
             if (char == '(') sum += 1
             if (char == ')') sum -= 1
-            if (sum == 0){
-                await_close = false
-                if (contains(expression, '(') || contains(expression, ')')) {
-                    value = value.replace(`(${expression})`, rm_parentheses(expression))
-                }
-                else{
-                    clk = multiplication_division(expression)
-                    clk = addition_subtraction(clk)
-                    value = value.replace(`(${expression})`, clk)
-                }
+            if (sum == 0 || count+1 == value.length) {
+                expression_value = multiplication_division(expression)
+                expression_value = addition_subtraction(expression_value)
+                if (oper == '-') expression_value = expression_value * -1
+                value = value.replace(expression, expression_value)
+                expression = ''                
             }
             expression += char
         }
-        else {
-            if (char == '('){
-                await_close = true
-                sum = 1
-                expression = ''
-            }
+        else{
+            if (char == '(') await_close = true 
+            if (count-1 < 0) oper = '+'
+            else if (contains(['*', '/', '-'], value[count-1])) oper = value[count-1]
         }
-    });
+        count += 1
+    })
     return value
 }
+
 calk_input.addEventListener("input", (event) => {
     var value = calk_input.value
     event.preventDefault()
-    value = value.replace(/[^\d\+\-\*\/\s\(\)\.]/, "")
+    value = value.replace(/[^\d\+\-\*\/\s\.]/, "")
     if (contains(['*', '/', '+', '-'], value[value.length - 1]) && value.length >= 2){
         if (contains(['*', '/', '+', '-'], value[value.length - 2])) value = value.substr(0, value.length-2) + value.substr(value.length-2 + 1)
     }
@@ -97,8 +95,7 @@ calk_input.addEventListener("input", (event) => {
     result = multiplication_division(result)
     result = addition_subtraction(result)
 
-    if (result != '') calk_result.innerHTML = result
-    else calk_result.innerHTML = 0
+    calk_result.innerHTML = result
 })
 document.addEventListener( 'keyup', event => {
     if( event.code === 'Enter' ) {

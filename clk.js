@@ -1,20 +1,14 @@
 "use strict";
 
+let str = '(3+3*(2-5))*(34-5/4)*(34-5/4*(34-5*(34-5/4)*(34-5/1)/4))*(34-5/4)';
+console.log(str);
+let parentheses_tree = []
+const multiplication_division_range = /([-]?[\d]+\.?[\d]*)([*/])([\d]+\.?[\d]*)/
+const addition_subtraction_range = /([-]?[\d]+\.?[\d]*)([+-])([\d]+\.?[\d]*)/
+
 const contains = (arr, elem) => {
     return arr.indexOf(elem) != -1;
 }
-function getListIdx(str, substr) {
-    let listIdx = []
-    let lastIndex = -1
-    while ((lastIndex = str.indexOf(substr, lastIndex + 1)) !== -1) {
-      listIdx.push(lastIndex)
-    }
-    return listIdx
-  }
-const calk_input = document.querySelector(".calk_input")
-const calk_result = document.querySelector(".calk_result")
-const multiplication_division_range = /([-]?[\d]+\.?[\d]*)([*/])([\d]+\.?[\d]*)/
-const addition_subtraction_range = /([-]?[\d]+\.?[\d]*)([+-])([\d]+\.?[\d]*)/
 const multiplication_division = (value) => { // умножение деление, выполняется после раскрывания скобок
     let reg_match = value.match(multiplication_division_range)
     if (reg_match != null){
@@ -44,9 +38,13 @@ const addition_subtraction = (value) => { // сложение вычитание
     else return String(value)
 }
 const rm_parentheses = (value) => { // раскрывание скобок
+    let parentheses_tree = [];
     let await_close = false
     let expression
     let sum
+    let count = 0
+    let expression_value
+    let oper = '*'
     let clk
     value.split('').forEach(char => {
         if (await_close){
@@ -75,33 +73,5 @@ const rm_parentheses = (value) => { // раскрывание скобок
     });
     return value
 }
-calk_input.addEventListener("input", (event) => {
-    var value = calk_input.value
-    event.preventDefault()
-    value = value.replace(/[^\d\+\-\*\/\s\(\)\.]/, "")
-    if (contains(['*', '/', '+', '-'], value[value.length - 1]) && value.length >= 2){
-        if (contains(['*', '/', '+', '-'], value[value.length - 2])) value = value.substr(0, value.length-2) + value.substr(value.length-2 + 1)
-    }
-    if (contains(['*', '/', '+'], value[0])) value = value.substr(1)
-    value = value.split("..").join(".")
-    value = value.split("++").join("+")
-    value = value.split("**").join("*")
-    value = value.split("//").join("/")
-    value = value.split("--").join("-")
-    calk_input.value = value
 
-    // дальше происходит подстчет результата
-    value = value.split(" ").join("")
-    
-    let result = rm_parentheses(value)
-    result = multiplication_division(result)
-    result = addition_subtraction(result)
-
-    if (result != '') calk_result.innerHTML = result
-    else calk_result.innerHTML = 0
-})
-document.addEventListener( 'keyup', event => {
-    if( event.code === 'Enter' ) {
-        calk_input.value = calk_result.innerHTML
-    }
-});
+console.log(rm_parentheses(str));
