@@ -13,88 +13,81 @@ function getListIdx(str, substr) {
   }
 const calk_input = document.querySelector(".calk_input")
 const calk_result = document.querySelector(".calk_result")
-
-const calk_plus_minus = (value) => {
-    var result = 0
-    var full_num = ''
-    var oper = '+'
-    var start = 0
-    var last_elem = 0
-    var await_close = false
-    var await_close_count = false
-    var await_close_value = ''
-    if (value[0] == '-') oper = '-'
-    var count = 0
-    var this_num = 0
-    var start_pos
-    value.split('').forEach(num => {
+const multiplication_division_range = /([-]?[\d]+\.?[\d]*)([*/])([\d]+\.?[\d]*)/
+const addition_subtraction_range = /([-]?[\d]+\.?[\d]*)([+-])([\d]+\.?[\d]*)/
+const multiplication_division = (value) => { // умножение деление, выполняется после раскрывания скобок
+    let reg_match = value.match(multiplication_division_range)
+    if (reg_match != null){
+        let oper = reg_match[2]
+        let first = Number(reg_match[1])
+        let second = Number(reg_match[3])
+        let rslt
+        if (oper == '*') rslt = first*second
+        if (oper == '/') rslt = first/second
+        value = value.replace(reg_match[0], String(rslt))
+    }
+    if (value.match(multiplication_division_range) != null) return multiplication_division(value)
+    else return String(value)
+}
+const addition_subtraction = (value) => { // сложение вычитание
+    var reg_match = value.match(addition_subtraction_range)
+    if (reg_match != null){
+        var oper = reg_match[2]
+        let first = Number(reg_match[1])
+        let second = Number(reg_match[3])
+        let rslt
+        if (oper == '+') rslt = first+second
+        if (oper == '-') rslt = first-second
+        value = value.replace(reg_match[0], String(rslt))
+    }
+    if (value.match(addition_subtraction_range) != null) return addition_subtraction(value)
+    else return String(value)
+}
+const rm_parentheses = (value) => { // раскрывание скобок
+    let await_close = false
+    let expression = ''
+    let sum = 1
+    let count = 0
+    let expression_value
+    let oper = '*'
+    value.split('').forEach(char => {
         if (await_close){
-            await_close_value += num;
-            if (num == '(') await_close_count += 1
-            if (num == ')') await_close_count -= 1
-            // console.log(await_close_count);
-            // console.log(calk_plus_minus(await_close_value.replace(")", "")));
-            
-            if (count + 1 == value.length || await_close_count == 0) {
-                full_num = calk_plus_minus(await_close_value.replace(")", ""))
-                if (oper == '+') result = start + Number(full_num)
-                if (oper == '-') result = start - Number(full_num)
-                if (oper == '*') {
-                    if (full_num == 0) full_num = 1
-                    // console.log(last_elem);
-                    result = start - last_elem + (last_elem * Number(full_num))
-                } 
-                if (oper == '/') result = start - last_elem + (last_elem / Number(full_num)) 
-                await_close = false
-                await_close_count = false
-                await_close_value = ''
+            if (char == '(') sum += 1
+            if (char == ')') sum -= 1
+            if (sum == 0 || count+1 == value.length) {
+                expression_value = multiplication_division(expression)
+                expression_value = addition_subtraction(expression_value)
+                if (oper == '-') expression_value = expression_value * -1
+                value = value.replace(expression, expression_value)
+                expression = ''                
             }
+            expression += char
         }
         else{
-
-            if (num.match(/\d/) != null){
-                full_num = `${full_num}${num}`
-                if (oper == '+') result = start + Number(full_num)
-                if (oper == '-') result = start - Number(full_num)
-                if (oper == '*') result = start - last_elem + (last_elem * Number(full_num)) 
-                if (oper == '/') result = start - last_elem + (last_elem / Number(full_num)) 
-            }
-
-            if (num.match(/\d/) == null){
-                if (num == '('){
-                    await_close = true
-                    await_close_value = ''
-                    await_close_count = 1
-                    start_pos = count
-                    if (value[count-1] != undefined && value[count-1].match(/\d/) != null) oper = "*"
-                }
-                else{
-                    if (oper == '*') last_elem = (last_elem * Number(full_num))
-                    else if (oper == '/') last_elem = (last_elem / Number(full_num))
-                    else last_elem = Number(full_num)
-                    oper = num
-                    full_num = ''
-                    start = result
-                }
-            }
+            if (char == '(') await_close = true 
+            if (count-1 < 0) oper = '+'
+            else if (contains(['*', '/', '-'], value[count-1])) oper = value[count-1]
         }
         count += 1
-    });
-    return result
+    })
+    return value
 }
 
 calk_input.addEventListener("input", (event) => {
     var value = calk_input.value
+    event.preventDefault()
     value = value.replace(/[^\d\+\-\*\/ \(\)]/, "")
-    // value = value.replace(/\([\+\-\*\/]?\)/, "")
-    // value = value.replace(/(\s){2,}/, " ")
     if (contains(['*', '/', '+', '-'], value[value.length - 1]) && value.length >= 2){
         if (contains(['*', '/', '+', '-'], value[value.length - 2])) value = value.substr(0, value.length-2) + value.substr(value.length-2 + 1)
     }
     calk_input.value = value
 
+    // дальше происходит подстчет результата
     value = value.split(" ").join("")
-    result = 0
-    var result = calk_plus_minus(value)
+    
+    // let result = rm_parentheses(value)
+    let result = multiplication_division(value)
+    result = addition_subtraction(result)
+
     calk_result.innerHTML = result
 })

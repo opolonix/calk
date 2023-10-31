@@ -26,13 +26,9 @@ const calk = (value) => {
             full_num = `${full_num}${num}`
             if (oper == '+') result = start + Number(full_num)
             if (oper == '-') result = start - Number(full_num)
-            if (oper == '*') result = start - last_elem + (last_elem * Number(full_num)) 
-            if (oper == '/') result = start - last_elem + (last_elem / Number(full_num)) 
         }
         else {
-            if (oper == '*') last_elem = (last_elem * Number(full_num))
-            else if (oper == '/') last_elem = (last_elem / Number(full_num))
-            else last_elem = Number(full_num)
+            last_elem = Number(full_num)
             oper = num
             full_num = ''
             start = result
@@ -52,7 +48,31 @@ calk_input.addEventListener("input", (event) => {
     calk_input.value = value
 
     value = value.split(" ").join("")
-    result = 0
-    var result = calk(value)
+    // value = value.replace(/[\/\*]$/, "")
+    var opers = ''
+    var result = 0
+    value.split('').forEach(char => {
+        if (contains(['+', '-'], char)) opers += char
+    });
+    if (opers.length != 0){
+        var count = 0
+        var results = []
+        value.split(/[-+]/).forEach(num => {
+            results.push(calk(num))
+        });
+        count = 0
+        console.log(results);
+        results.forEach((elem) => {
+            if (count == 0) {
+                result = elem
+            }
+            else{
+                if (opers[count-1] == '*') result = result*elem
+                if (opers[count-1] == '/') result = result/elem
+            }
+            count += 1
+        })
+    }
+    else var result = calk(value)
     calk_result.innerHTML = result
 })
