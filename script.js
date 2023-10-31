@@ -48,6 +48,7 @@ const rm_parentheses = (value) => { // раскрывание скобок
     let expression
     let sum
     let clk
+    let count = 0
     value.split('').forEach(char => {
         if (await_close){
             if (char == '(') sum += 1
@@ -72,6 +73,7 @@ const rm_parentheses = (value) => { // раскрывание скобок
                 expression = ''
             }
         }
+        count += 1
     });
     return value
 }
@@ -88,6 +90,14 @@ calk_input.addEventListener("input", (event) => {
     value = value.split("**").join("*")
     value = value.split("//").join("/")
     value = value.split("--").join("-")
+
+    let reg = value.match(/(\d)\(/)
+    while (reg != null){
+        value = value.replace(reg[0], `${reg[1]}*(`)
+        reg = value.match(/(\d)\(/)
+    }
+
+
     calk_input.value = value
 
     // дальше происходит подстчет результата
