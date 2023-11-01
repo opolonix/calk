@@ -1,3 +1,3 @@
 Калькулятор с однострочным вводом. Алгоритм на js
 
-веб демо - https://opolonix.github.io/calk/
+Веб демо - https://opolonix.github.io/calk/
