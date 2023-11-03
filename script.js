@@ -56,7 +56,9 @@ const rm_parentheses = (value) => { // раскрывание скобок
             if (sum == 0){
                 await_close = false
                 if (contains(expression, '(') || contains(expression, ')')) {
-                    value = value.replace(`(${expression})`, rm_parentheses(expression))
+                    clk = multiplication_division(rm_parentheses(expression))
+                    clk = addition_subtraction(clk)
+                    value = value.replace(`(${expression})`, clk)
                 }
                 else{
                     clk = multiplication_division(expression)
