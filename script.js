@@ -53,6 +53,9 @@ const rm_parentheses = (value) => { // раскрывание скобок
         if (await_close){
             if (char == '(') sum += 1
             if (char == ')') sum -= 1
+            if (sum != 0 && value.length == count){
+                console.log(sum, value);
+            }
             if (sum == 0){
                 await_close = false
                 if (contains(expression, '(') || contains(expression, ')')) {
