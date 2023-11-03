@@ -57,6 +57,8 @@ const rm_parentheses = (value) => { // раскрывание скобок
                 await_close = false
                 if (contains(expression, '(') || contains(expression, ')')) {
                     value = value.replace(`(${expression})`, rm_parentheses(expression))
+                    value = multiplication_division(value)
+                    value = addition_subtraction(value)
                 }
                 else{
                     clk = multiplication_division(expression)
